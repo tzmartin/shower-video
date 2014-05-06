@@ -3,6 +3,7 @@
 
 	Browser support: latest versions of all major browsers
 
+	@url github.com/operatino/shower-video
 	@author Robert Haritonov <r@rhr.me>
 	@twitter @operatino
 */
@@ -26,10 +27,6 @@ video {
   display: none;
 }
 
-/* Video sizing same as images in Cover mode */
-/*.slide.cover video {*/
-/*z-index: 1;*/
-/*}*/
 /*
     iPads wont calculate proporcional dimensions by themselves
     So we'll do it for it, assuming that video is 16:9

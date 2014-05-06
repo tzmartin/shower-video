@@ -3,6 +3,7 @@
 
 	Browser support: latest versions of all major browsers
 
+	@url github.com/operatino/shower-video
 	@author Robert Haritonov <r@rhr.me>
 	@twitter @operatino
 */
@@ -14,138 +15,187 @@
 
  */
 
+if(!(window.showerVideo && window.showerVideo.init)) {
+
+window.showerVideo = (function(window, document, undefined) {
+
+	var showerVideo = {},
+		u = {},
+		html = document.getElementsByTagName('html')[0],
+		showerCssInit = 0;
+
+	showerVideo.debug = false;
+
+	showerVideo.isMobile = false;
+	showerVideo.isIPhone = false;
+	showerVideo.isIPad = false;
+
+	/*
+
+		Utils
+
+	 */
+
+	u.query = function(query) {
+		return document.querySelectorAll(query);
+	};
+
+	u.forEach = function(array, callback) {
+		Array.prototype.forEach.call(array, function(item){
+			callback(item);
+		});
+	};
 
 
-/*
+	/*
 
-    Utils
+		Core
 
- */
+	 */
 
-var select = function(query) {
-    return document.querySelectorAll(query);
-};
+	showerVideo.prepareEnv = function(){
+		if (navigator.userAgent.match(/Android/i)
+		|| navigator.userAgent.match(/webOS/i)
+		|| navigator.userAgent.match(/iPhone/i)
+		|| navigator.userAgent.match(/iPad/i)
+		|| navigator.userAgent.match(/iPod/i)
+		|| navigator.userAgent.match(/BlackBerry/i)
+		|| navigator.userAgent.match(/Windows Phone/i)
+		) {
+			showerVideo.isMobile = true;
+			html.classList.add('mobile');
+		}
 
-//To get easy forEach for querySelectorAll https://gist.github.com/DavidBruant/1016007
-NodeList.prototype.forEach = Array.prototype.forEach;
+		if ( navigator.userAgent.match(/iPhone/i) ) {
+			showerVideo.isIPhone = true;
+			html.classList.add('iphone');
+		}
 
+		if ( navigator.userAgent.match(/iPad/i) ) {
+			showerVideo.isIPad = true;
+			html.classList.add('ipad');
+		}
+	};
 
+	showerVideo.startVideo = function(){
+		//pause all videos first
+		var allVideos = u.query('video');
 
-/*
-
-    Core
-
- */
-
-var showerCssInit = 0;
-
-var startVideo = function(){
-    //pause all videos first
-    var allVideos = select('video');
-    allVideos.forEach(function(el){
-        el.pause();
-
-		if (isMobile) { el.parentNode.style.display = 'none';}
-    });
-
-
-
-	//Fetch all videos on current slide
-    var activeVideos = select('.slide.active video');
-    activeVideos.forEach(function(el){
-        var play = function() {
-			//Resetting video
-            el.currentTime = 0;
-            el.play();
-        };
-
-		var prepareForPlaying = function(){
-			//For triggering video load on iPad
-			el.load();
-			el.play();
-
-			//And then pause till video fully downloaded
+		u.forEach(allVideos, function(el){
 			el.pause();
 
-			//TODO: add loader
+			if (showerVideo.isMobile) { el.parentNode.style.display = 'none';}
+		});
 
-			//Waiting till video fully loads
-			el.addEventListener('canplaythrough', play, false);
-		};
+		//Fetch all videos on current slide
+		var activeVideos = u.query('.slide.active video');
+		u.forEach(activeVideos, function(el){
+			var play = function() {
+				//Resetting video
+				el.currentTime = 0;
+				el.play();
+			};
 
-        if(el && el.currentTime !== undefined) {
-            if (el.readyState !== 4) { //HAVE_ENOUGH_DATA
-                console.log('not ready');
+			var prepareForPlaying = function(){
+				//For triggering video load on iPad
+				el.load();
+				el.play();
 
-				if(isMobile && showerCssInit === 0) {
-					//TODO: add loader
-					//TODO: on first page visit with video, add play button
+				//And then pause till video fully downloaded
+				el.pause();
 
-					//initing video after first Shower CSS init, to avoid CPU load bottleneck
-					setTimeout(function(){
-						//TODO: move this init to Full mode check
-						showerCssInit = 1;
+				//TODO: add loader
 
-						el.parentNode.style.display = 'block';
+				//Waiting till video fully loads
+				el.addEventListener('canplaythrough', play, false);
+			};
+
+			if(el && el.currentTime !== undefined) {
+				if (el.readyState !== 4) { //HAVE_ENOUGH_DATA
+
+					if (showerVideo.debug) console.log('Video not ready');
+
+					if(showerVideo.isMobile && showerCssInit === 0) {
+						//TODO: add loader
+						//TODO: on first page visit with video, add play button
+
+						//initing video after first Shower CSS init, to avoid CPU load bottleneck
+						setTimeout(function(){
+							//TODO: move this init to Full mode check
+							showerCssInit = 1;
+
+							el.parentNode.style.display = 'block';
+
+							prepareForPlaying();
+						}, 700);
+
+					} else {
+
+						//Init video for mobile devices
+						if (showerVideo.isMobile) { el.parentNode.style.display = 'block';}
 
 						prepareForPlaying();
-					}, 700);
+					}
 
 				} else {
+					if (showerVideo.debug) console.log('Video is ready');
 
-					//Init video for mobile devices
-					if (isMobile) { el.parentNode.style.display = 'block';}
+					if (showerVideo.isMobile) { el.parentNode.style.display = 'block';}
 
-					prepareForPlaying();
+					play();
 				}
+			}
+		});
+	};
 
-            } else {
-                console.log('ready');
+	showerVideo.startGif = function(){
+		var activeSlideGifs = u.query('.slide.active .gif'),
+			allGifs = u.query('.slide .gif');
 
-				if (isMobile) { el.parentNode.style.display = 'block';}
+		if( activeSlideGifs.length !== 0) {
 
-                play();
-            }
-        }
-    });
-};
+			u.forEach(activeSlideGifs, function(item){
+				if (item.classList.contains('real')) {
+					item.style.display = 'block';
+				} else {
+					item.style.display  = 'none';
+				}
+			});
 
-var startGif = function(){
-    var activeSlideGifs = select('.slide.active .gif'),
-        allGifs = select('.slide .gif');
+		} else {
 
-    if( activeSlideGifs.length !== 0) {
+			u.forEach(allGifs, function(item){
+				if (item.classList.contains('real')) {
+					item.style.display  = 'none';
+				} else {
+					item.style.display  = 'block';
+				}
+			});
+		}
+	};
 
-        activeSlideGifs.forEach(function(item){
-            if (item.classList.contains('real')) {
-                item.style.display = 'block';
-            } else {
-                item.style.display  = 'none';
-            }
-        });
+	showerVideo.init = function(){
+		showerVideo.prepareEnv();
 
-    } else {
-
-        allGifs.forEach(function(item){
-            if (item.classList.contains('real')) {
-                item.style.display  = 'none';
-            } else {
-                item.style.display  = 'block';
-            }
-        });
-    }
-};
+		// Listen for the Slide Switch event
+		// TODO: wait for proper API implementation in Shower
+		document.addEventListener('switchSlide', function (e) {
+			showerVideo.startVideo();
+			showerVideo.startGif();
+		}, false);
+	};
 
 
-/*
+	/*
 
-    Init
+		Init
 
- */
+	 */
 
-// Listen for the event.
-// TODO: wait for proper API implementation in Shower
-document.addEventListener('switchSlide', function (e) {
-    startVideo();
-    startGif();
-}, false);
+	showerVideo.init();
+
+	return showerVideo;
+
+})(this, this.document);
+
+}
