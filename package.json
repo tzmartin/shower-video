@@ -1,0 +1,28 @@
+{
+  "name": "shower-video",
+  "version": "0.0.1",
+  "description": "Video and Gif management plugin for Shower, HTML presentation engine (github.com/shower/shower)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/operatino/shower-video.git"
+  },
+  "keywords": [
+    "shower",
+    "video",
+    "gif"
+  ],
+  "author": "Robert Haritonov",
+  "bugs": {
+    "url": "https://github.com/operatino/shower-video/issues"
+  },
+  "homepage": "https://github.com/operatino/shower-video",
+  "dependencies": {
+    "shower-ribbon": "^1.0.7",
+    "shower": "git://github.com/operatino/core",
+    "load-grunt-tasks": "~0.4.0",
+    "time-grunt": "~0.3.1",
+    "grunt": "~0.4.4",
+    "grunt-contrib-sass": "~0.7.3",
+    "grunt-contrib-watch": "~0.6.1"
+  }
+}
