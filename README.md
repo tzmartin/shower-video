@@ -3,6 +3,8 @@ Video and Gif management plugin for Shower
 
 Video and Gif management plugin for [Shower](https://github.com/shower/shower) presentation engine.
 
+[Demo](http://rhr.me/projects/shower-video/).
+
 ## Usage Examples:
 
 1. "[Taking Development Tools To The Next Level](http://rhr.me/pres/ime)"
