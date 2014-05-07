@@ -1,4 +1,4 @@
-/*
+/*!
 	Video plugin for Shower, HTML presentation engine (github.com/shower/shower)
 
 	Browser support: latest versions of all major browsers
@@ -14,12 +14,27 @@
 */
 
 
+// Layout
+$width:1024px; // Slide width, permanent in most cases
+$height:768px; // Slide height, 640px for 16/10, 768px for 4/3
+$ratio:'';
+
+// Ratio
+@if $height == 640px {
+	$ratio:'16x10';
+}
+@if $height == 768px {
+	$ratio:'4x3';
+}
+
+
 /*
 
     .video_wrapper - generated automatically
         video
 
 */
+
 
 video {
 	background-color: #000; /* for overlaying fallback text */
@@ -40,13 +55,8 @@ video {
     }
 
 .ipad .slide.cover.h video {
-    /* 4x3 */
-    width: 1366px; /* height/9*16 */
-    height: 768px;
-
-    /* 16:10 */
-    /*width: 1138px;*/
-    /*height: 640px;*/
+    width: $height/9*16;
+    height: $height;
     }
 
 /* Turning off video stretch for iphone */

@@ -1,4 +1,4 @@
-/*
+/*!
 	Video plugin for Shower, HTML presentation engine (github.com/shower/shower)
 
 	Browser support: latest versions of all major browsers
@@ -12,6 +12,7 @@
 	TODO:
 	* rerun video if it finished playback or next slide tick
 	* check preload on android mobile devices
+	* mark videos as played for turning off autoplay on iphone
 
  */
 

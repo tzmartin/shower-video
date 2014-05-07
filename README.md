@@ -5,6 +5,8 @@ Video and Gif management plugin for [Shower](https://github.com/shower/shower) p
 
 [Demo](http://rhr.me/projects/shower-video/).
 
+Browser support: all modern desktop and mobile browsers.
+
 ## Usage Examples:
 
 1. "[Taking Development Tools To The Next Level](http://rhr.me/pres/ime)"

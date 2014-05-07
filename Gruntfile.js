@@ -7,10 +7,20 @@ module.exports = function(grunt) {
 
     // Tasks
     grunt.initConfig({
+		uglify: {
+			dist: {
+                options: {
+                    preserveComments: 'some'
+                },
+				files: {
+					'shower-video.min.js': ['shower-video.js']
+				}
+			}
+		},
         sass: {
             dist: {
                 options: {
-                    style: 'expanded'
+                    style: 'compressed'
                 },
                 files: {
                     'shower-video.css': 'shower-video.scss'
@@ -19,12 +29,12 @@ module.exports = function(grunt) {
         },
         watch: {
             scripts: {
-                files: ['**/*.scss'],
-                tasks: ['sass']
+                files: ['**/*.scss','**/*.js'],
+                tasks: ['sass','uglify']
             }
         }
     });
 
     // Init server-side
-    grunt.registerTask('default', ['sass']);
+    grunt.registerTask('default', ['sass','uglify']);
 };
