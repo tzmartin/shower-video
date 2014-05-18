@@ -45,6 +45,9 @@ video {
 	display: none;
 	}
 
+/* Making video above all content in cover mode by default */
+.slide.cover video:not(.background) {z-index: 1}
+
 /*
     iPads wont calculate proporcional dimensions by themselves
     So we'll do it for it, assuming that video is 16:9
