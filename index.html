@@ -21,7 +21,20 @@
 	<section class="slide"><div>
 		<h2>Insert video to your slide</h2>
 
-		<pre><code>&lt;section class="<mark>slide cover h</mark>"&gt;&lt;div&gt;
+		<pre><code>&lt;section class="<mark>slide</mark>"&gt;&lt;div&gt;
+    <mark>&lt;video&gt;</mark>
+        <mark>&lt;source src="videos/spec.mp4" type="video/mp4;"&gt;</mark>
+    &lt;video&gt;
+&lt;/div&gt;&lt;/section&gt;</code></pre>
+
+	</div></section>
+
+	<section class="slide"><div>
+		<h2>Cover mode</h2>
+
+        <p>Add slide cover videos exactly as with images in Shower:</p>
+
+		<pre><code>&lt;section class="<mark>slide cover [h, w, h w]</mark>"&gt;&lt;div&gt;
     <mark>&lt;video&gt;</mark>
         <mark>&lt;source src="videos/spec.mp4" type="video/mp4;"&gt;</mark>
     &lt;video&gt;
@@ -39,10 +52,22 @@
             </video>
         </div>
 	</div></section>
+
+	<section class="slide"><div>
+		<h2>Cover mode</h2>
+
+        <p>By default, video are higher than slide content. to put text over the video, add <code>.background</code> class:</p>
+
+		<pre><code><mark>&lt;video class="<mark>background</mark>"&gt;</mark>
+    <mark>&lt;source src="videos/spec.mp4" type="video/mp4;"&gt;</mark>
+&lt;video&gt;</code></pre>
+
+	</div></section>
+
 	<section class="slide cover w"><div>
         <h2 class="place m b" style="text-align: center">Video in Cover mode, scale by width</h2>
 		<div class="video_wrapper">
-            <video preload>
+            <video class="background" preload>
                 <source src="videos/spec.mp4" type="video/mp4;">
                 <source src="videos/spec.webm" type="video/webm;">
 
@@ -50,10 +75,11 @@
             </video>
         </div>
 	</div></section>
+
 	<section class="slide cover h"><div>
         <h2 class="place m b" style="text-align: center">Video in Cover mode, scale by height</h2>
 		<div class="video_wrapper">
-            <video preload>
+            <video class="background" preload>
                 <source src="videos/spec.mp4" type="video/mp4;">
                 <source src="videos/spec.webm" type="video/webm;">
 
@@ -61,10 +87,11 @@
             </video>
         </div>
 	</div></section>
+
 	<section class="slide cover w h"><div>
         <h2 class="place m b" style="text-align: center">Video in Cover mode, scale by height and width</h2>
 		<div class="video_wrapper">
-            <video preload>
+            <video class="background" preload>
                 <source src="videos/spec.mp4" type="video/mp4;">
                 <source src="videos/spec.webm" type="video/webm;">
 
