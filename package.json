@@ -1,6 +1,6 @@
 {
   "name": "shower-video",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "Video and Gif management plugin for Shower, HTML presentation engine (github.com/shower/shower)",
   "repository": {
     "type": "git",
