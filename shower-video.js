@@ -16,187 +16,191 @@
 
  */
 
-if(!(window.showerVideo && window.showerVideo.init)) {
+ shower.modules.define('shower-video', [
+     'util.extend'
+ ], function (provide, extend) {
 
-window.showerVideo = (function(window, document, undefined) {
+     function Main (shower, options) {
+			 options = options || {};
+			 this._shower = shower;
+			 this._playerListeners = null;
 
-	var showerVideo = {},
-		u = {},
-		html = document.getElementsByTagName('html')[0],
-		showerCssInit = 0;
+			 this.showerCssInit = 0;
+			 this.debug = options.debug || false;
 
-	showerVideo.debug = false;
+			 this.isMobile = false;
+			 this.isIPhone = false;
+			 this.isIPad = false;
 
-	showerVideo.isMobile = false;
-	showerVideo.isIPhone = false;
-	showerVideo.isIPad = false;
+			 this._setupListeners();
+			 this._prepareEnv();
+     }
 
-	/*
+     extend(Main.prototype, {
 
-		Utils
+         destroy: function () {
+             this._clearListeners();
+             this._shower = null;
+         },
 
-	 */
+         _setupListeners: function () {
+             var shower = this._shower;
 
-	u.query = function(query) {
-		return document.querySelectorAll(query);
-	};
+             this._showerListeners = shower.events.group()
+                 .on('destroy', this.destroy, this);
 
-	u.forEach = function(array, callback) {
-		Array.prototype.forEach.call(array, function(item){
-			callback(item);
-		});
-	};
+             this._playerListeners = shower.player.events.group()
+                 .on('activate', this._onActivate, this)
+         },
 
+         _clearListeners: function () {
+             if (this._showerListeners) {
+                 this._showerListeners.offAll();
+             }
+             if (this._playerListeners) {
+                 this._playerListeners.offAll();
+             }
+         },
 
-	/*
+       	_forEach: function (array, callback) {
+       		Array.prototype.forEach.call(array, function (item) {
+       			callback(item);
+       		});
+       	},
 
-		Core
+         _prepareEnv: function(){
+           var html = document.getElementsByTagName('html')[0];
+       		if (navigator.userAgent.match(/Android/i)
+       		|| navigator.userAgent.match(/webOS/i)
+       		|| navigator.userAgent.match(/iPhone/i)
+       		|| navigator.userAgent.match(/iPad/i)
+       		|| navigator.userAgent.match(/iPod/i)
+       		|| navigator.userAgent.match(/BlackBerry/i)
+       		|| navigator.userAgent.match(/Windows Phone/i)
+       		) {
+       			this.isMobile = true;
+       			html.classList.add('mobile');
+       		}
 
-	 */
+       		if ( navigator.userAgent.match(/iPhone/i) ) {
+       			this.isIPhone = true;
+       			html.classList.add('iphone');
+       		}
 
-	showerVideo.prepareEnv = function(){
-		if (navigator.userAgent.match(/Android/i)
-		|| navigator.userAgent.match(/webOS/i)
-		|| navigator.userAgent.match(/iPhone/i)
-		|| navigator.userAgent.match(/iPad/i)
-		|| navigator.userAgent.match(/iPod/i)
-		|| navigator.userAgent.match(/BlackBerry/i)
-		|| navigator.userAgent.match(/Windows Phone/i)
-		) {
-			showerVideo.isMobile = true;
-			html.classList.add('mobile');
-		}
+       		if ( navigator.userAgent.match(/iPad/i) ) {
+       			this.isIPad = true;
+       			html.classList.add('ipad');
+       		}
+       	},
 
-		if ( navigator.userAgent.match(/iPhone/i) ) {
-			showerVideo.isIPhone = true;
-			html.classList.add('iphone');
-		}
+         _onActivate: function () {
+           this.startVideo();
+           this.startGif();
+       	},
 
-		if ( navigator.userAgent.match(/iPad/i) ) {
-			showerVideo.isIPad = true;
-			html.classList.add('ipad');
-		}
-	};
+         startVideo: function () {
+       		// pause all videos first
+       		var allVideos = document.querySelectorAll('video');
 
-	showerVideo.startVideo = function(){
-		//pause all videos first
-		var allVideos = u.query('video');
+           console.log(allVideos);
 
-		u.forEach(allVideos, function(el){
-			el.pause();
+       		this._forEach(allVideos, function (el) {
+       			el.pause();
+       			if (this.isMobile) { el.parentNode.style.display = 'none';}
+       		}.bind(this));
 
-			if (showerVideo.isMobile) { el.parentNode.style.display = 'none';}
-		});
+       		// Fetch all videos on current slide
+       		var activeVideos = document.querySelectorAll('.slide.active video');
+       		this._forEach(activeVideos, function(el){
+       			var play = function() {
+       				// Reset video
+       				el.currentTime = 0;
+       				el.play();
+       			};
 
-		//Fetch all videos on current slide
-		var activeVideos = u.query('.slide.active video');
-		u.forEach(activeVideos, function(el){
-			var play = function() {
-				//Resetting video
-				el.currentTime = 0;
-				el.play();
-			};
+       			var prepareForPlaying = function () {
+       				// For triggering video load on iPad
+       				el.load();
+       				el.play();
 
-			var prepareForPlaying = function(){
-				//For triggering video load on iPad
-				el.load();
-				el.play();
+       				// And then pause till video fully downloaded
+       				el.pause();
 
-				//And then pause till video fully downloaded
-				el.pause();
+       				//TODO: add loader
 
-				//TODO: add loader
+       				// Waiting till video fully loads
+       				el.addEventListener('canplaythrough', play, false);
+       			};
 
-				//Waiting till video fully loads
-				el.addEventListener('canplaythrough', play, false);
-			};
+       			if(el && el.currentTime !== undefined) {
+       				if (el.readyState !== 4) { // HAVE_ENOUGH_DATA
 
-			if(el && el.currentTime !== undefined) {
-				if (el.readyState !== 4) { //HAVE_ENOUGH_DATA
+       					if (this.debug) console.log('Video not ready');
 
-					if (showerVideo.debug) console.log('Video not ready');
+       					if(this.isMobile && this.showerCssInit === 0) {
+       						//TODO: add loader
+       						//TODO: on first page visit with video, add play button
 
-					if(showerVideo.isMobile && showerCssInit === 0) {
-						//TODO: add loader
-						//TODO: on first page visit with video, add play button
+       						//initing video after first Shower CSS init, to avoid CPU load bottleneck
+       						setTimeout(function(){
+       							//TODO: move this init to Full mode check
+       							this.showerCssInit = 1;
 
-						//initing video after first Shower CSS init, to avoid CPU load bottleneck
-						setTimeout(function(){
-							//TODO: move this init to Full mode check
-							showerCssInit = 1;
+       							el.parentNode.style.display = 'block';
 
-							el.parentNode.style.display = 'block';
+       							prepareForPlaying();
+       						}.bind(this), 700);
 
-							prepareForPlaying();
-						}, 700);
+       					} else {
 
-					} else {
+       						// Init video for mobile devices
+       						if (this.isMobile) { el.parentNode.style.display = 'block';}
 
-						//Init video for mobile devices
-						if (showerVideo.isMobile) { el.parentNode.style.display = 'block';}
+       						prepareForPlaying();
+       					}
 
-						prepareForPlaying();
-					}
+       				} else {
+       					if (this.debug) console.log('Video is ready');
 
-				} else {
-					if (showerVideo.debug) console.log('Video is ready');
+       					if (this.isMobile) { el.parentNode.style.display = 'block';}
 
-					if (showerVideo.isMobile) { el.parentNode.style.display = 'block';}
+       					play();
+       				}
+       			}
+       		}.bind(this));
+       	},
 
-					play();
-				}
-			}
-		});
-	};
+         startGif: function () {
+       		var activeSlideGifs = document.querySelectorAll('.slide.active .gif');
+       		var allGifs = document.querySelectorAll('.slide .gif');
 
-	showerVideo.startGif = function(){
-		var activeSlideGifs = u.query('.slide.active .gif'),
-			allGifs = u.query('.slide .gif');
+       		if( activeSlideGifs.length !== 0) {
 
-		if( activeSlideGifs.length !== 0) {
+       			this._forEach(activeSlideGifs, function (item) {
+       				if (item.classList.contains('real')) {
+       					item.style.display = 'block';
+       				} else {
+       					item.style.display  = 'none';
+       				}
+       			});
 
-			u.forEach(activeSlideGifs, function(item){
-				if (item.classList.contains('real')) {
-					item.style.display = 'block';
-				} else {
-					item.style.display  = 'none';
-				}
-			});
+       		} else {
 
-		} else {
+       			this._forEach(allGifs, function (item) {
+       				if (item.classList.contains('real')) {
+       					item.style.display  = 'none';
+       				} else {
+       					item.style.display  = 'block';
+       				}
+       			});
+       		}
+       	}
 
-			u.forEach(allGifs, function(item){
-				if (item.classList.contains('real')) {
-					item.style.display  = 'none';
-				} else {
-					item.style.display  = 'block';
-				}
-			});
-		}
-	};
+     });
 
-	showerVideo.init = function(){
-		showerVideo.prepareEnv();
+     provide(Main);
+ });
 
-		// Listen for the Slide Switch event
-		// TODO: wait for proper API implementation in Shower
-		document.addEventListener('switchSlide', function (e) {
-			showerVideo.startVideo();
-			showerVideo.startGif();
-		}, false);
-	};
-
-
-	/*
-
-		Init
-
-	 */
-
-	showerVideo.init();
-
-	return showerVideo;
-
-})(this, this.document);
-
-}
+ shower.modules.require(['shower'], function (sh) {
+     sh.plugins.add('shower-video');
+ });
